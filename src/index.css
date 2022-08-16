@@ -1,0 +1,14 @@
+body {
+  font-family: 'Roboto Condensed',sans-serif !important;
+  overflow-x: hidden;
+  background-color: #eee8e4 !important;
+}
+.brand {
+  font-family: 'lobster',cursive,monospace;
+}
+
+.card-img {
+  max-width: 300px;
+  padding: 1.5rem;
+  height: auto;
+}
