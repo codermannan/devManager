@@ -4,6 +4,8 @@ import DatePicker from 'react-datepicker'
 import {useForm} from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from "yup"
+import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 const schema = yup.object({
   firstName : yup.string().required('First name is required').min(3,'first name must be 3 character'),
@@ -29,41 +31,28 @@ const schema = yup.object({
       .oneOf(['male', 'female']),
 }).required()
 
-export default function AddContact({ addContact }) {
-    /*
-    const [contact,setContact] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        profession: '',
-        gender: 'male',
-        dateOfBirth: '',
-        bio: '',
-        image:''
-    });
-    */
+export default function AddContact({ addContact,contact,updateContact }) {
+    //console.log("add",contact);
     const {register,handleSubmit,watch,setValue,reset,formState:{errors,isSubmitting,isSubmitSuccessful}}
     = useForm({
       resolver : yupResolver(schema),
     });
 
-    console.log(errors);
-    /*
-    const handleChange = (evt) => {
-        setContact({
-        ...contact,
-        [evt.target.name] : evt.target.value
-        })
-        console.log("handleChange",contact);
+    //console.log(errors);
+    const defaultValue = {
+      firstName : contact?.firstName || 'Abdul',
+      lastName : contact?.lastName || 'Mannan',
+      email : contact?.email || 'mannandiu@gmail.com',
+      gender : contact?.gender || 'male',
+      profession : contact?.profession || 'developer',
+      bio : contact?.bio || 'I am working as a software developer for the last 15 years',
+      image : contact?.image || 'https://randomuser.me/api/portraits/women/75.jpg',
+      dateOfBirth : contact?.dateOfBirth || '02/03/2022'
     }
 
-    const handleForm = (evt) => {
-        evt.preventDefault();
-        addContact(contact);
-        console.log("handleForm",contact);
-    }
-    */
-    //const {firstName,lastName,email,profession,gender,dateOfBirth,bio,image} = contact;
+    const navigate = useNavigate();
+    const {firstName,lastName,email,gender,profession,bio,image} = defaultValue;
+
     const [birthYear, setBirthYear] = useState(new Date());
 
     useEffect(() => {
@@ -86,11 +75,21 @@ export default function AddContact({ addContact }) {
     );
 
     const onSubmit = (data) => {
-        console.log(data)
+       const id = contact?.id;
+
+       if(id){
+        toast.success("Contact has been updated successfully");
+        updateContact(data,id);
+       }else{
+        toast.success("Contact has been added successfully");
+        addContact(data);
+       }
+        //console.log(data)
+        navigate('/contacts');
     }
    return (
     <>
-      <h2 className='text-center'>Add Contact</h2>
+      <h2 className='text-center'>{contact?.id ? 'Edit Contact' : 'Add Contact'}</h2>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Form.Group as={Row} className='mb-3'>
           <Col sm={3}>
@@ -102,7 +101,7 @@ export default function AddContact({ addContact }) {
             <Form.Control
               type='text'
               id='firstName'
-              defaultValue=''
+              defaultValue={firstName}
               {...register('firstName')}
               isInvalid={errors?.firstName}
               placeholder='Enter Your First Name'
@@ -123,7 +122,7 @@ export default function AddContact({ addContact }) {
               type='text'
               id='lastName'
               name='lastName'
-              defaultValue=''
+              defaultValue={lastName}
               {...register('lastName')}
               isInvalid={errors?.lastName}
               placeholder='Enter Your Last Name'
@@ -144,7 +143,7 @@ export default function AddContact({ addContact }) {
               type='email'
               id='email'
               name='email'
-              defaultValue=''
+              defaultValue={email}
               {...register('email')}
               isInvalid={errors?.email}
               placeholder='Enter Your email'
@@ -164,7 +163,7 @@ export default function AddContact({ addContact }) {
             <Form.Select
               {...register('profession')}
               id='profession'
-              //defaultValue={profession}
+              defaultValue={profession}
               isInvalid={errors?.profession}
               aria-label='Select your profession'
             >
@@ -192,7 +191,7 @@ export default function AddContact({ addContact }) {
               type='text'
               id='image'
               name='image'
-              defaultValue=''
+              defaultValue={image}
               {...register('image')}
               isInvalid={errors?.image}
               placeholder='Enter Your image'
@@ -231,6 +230,7 @@ export default function AddContact({ addContact }) {
               type='radio'
               label='Male'
               value='male'
+              defaultChecked={gender == 'male'}
               {...register('gender')}
             />
           </Col>
@@ -239,6 +239,7 @@ export default function AddContact({ addContact }) {
               type='radio'
               label='Female'
               value='female'
+              defaultChecked={gender == 'female'}
               {...register('gender')}
             />
           </Col>
@@ -255,6 +256,7 @@ export default function AddContact({ addContact }) {
               type='text'
               {...register('bio')}
               isInvalid={errors?.bio}
+              defaultValue={bio}
               placeholder='Enter Your Bio'
             />
             <Form.Control.Feedback type='invalid' className='d-block'>
@@ -267,7 +269,7 @@ export default function AddContact({ addContact }) {
           size='md'
           type='submit'
         >
-          Add Contact
+          {contact?.id ? 'Update Contact' : 'Add Contact'}
         </Button>
       </Form>
     </>
